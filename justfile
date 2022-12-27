@@ -21,3 +21,7 @@ git-push: version
     @git push
     @git tag -a {{VERSION}} -m "Version {{VERSION}}"
     @git push origin --tags
+
+# Display the version
+version:
+    @echo "version {{VERSION}}"
