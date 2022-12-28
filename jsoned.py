@@ -152,12 +152,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             json_dict = json.loads(json_text)
         except json.decoder.JSONDecodeError as err:
             self.notify_error(str(err))
+            self.plainTextEdit.highlight_error_line(err.lineno)
         else:
             # json_fmt = json.dumps(json_dict, sort_keys=True, indent=2)
             json_fmt = json.dumps(json_dict, sort_keys=False, indent=2)
             self.plainTextEdit.setPlainText(json_fmt)
             self.notify_info("Formatting successful")
-
+            self.plainTextEdit.set_line_error(0)
 
 a = QApplication(sys.argv)
 w = MainWindow(a)

@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QPlainTextEdit, QTextEdit
 from PySide6.QtCore import QSize, QRect, Qt
-from PySide6.QtGui import QColor, QPainter, QTextFormat, QFontDatabase
+from PySide6.QtGui import QColor, QPainter, QTextFormat, QFontDatabase, QTextBlockFormat, QTextCursor
 
 # Line numbers and highlight current line inspired from the following articles:
 # - https://doc.qt.io/qt-5/qtwidgets-widgets-codeeditor-example.html
@@ -27,6 +27,12 @@ class Editor(QPlainTextEdit):
         self.setStyleSheet("background-color:lightyellow")
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         self.setFont(font)
+
+        # Error Style (line)
+        self.line_error = 0
+        self.error_format = QTextBlockFormat()
+        line_error = QColor(Qt.GlobalColor.red).lighter(180)
+        self.error_format.setBackground(line_error)
 
         self.lineNumberArea = LineNumberArea(self)
         self.blockCountChanged.connect(self.update_line_number_area_width)
@@ -59,6 +65,9 @@ class Editor(QPlainTextEdit):
             bottom = top + self.blockBoundingRect(block).height()
             block_number += 1
 
+    def set_line_error(self, line_number=0):
+        self.line_error = line_number
+
     def line_number_area_width(self):
         # digits = len(str(self.blockCount()))
         digits = 7  # Fixed gutter size
@@ -82,9 +91,18 @@ class Editor(QPlainTextEdit):
             selection.format.setBackground(line_color)
             selection.format.setProperty(QTextFormat.FullWidthSelection, True)
             selection.cursor = self.textCursor()
+            current_line = selection.cursor.blockNumber() + 1
             selection.cursor.clearSelection()
-            extra_selections.append(selection)
+            if self.line_error != current_line:
+                extra_selections.append(selection)
         self.setExtraSelections(extra_selections)
+
+    def highlight_error_line(self, line_number):
+        self.line_error = line_number
+        line_number -= 1
+        cursor = QTextCursor(self.document().findBlockByNumber(line_number))
+        cursor.setBlockFormat(self.error_format)
+        self.highlight_current_line()  # In case the cursor is on the error line
 
     def update_line_number_area(self, rect, dy):
         if dy:
