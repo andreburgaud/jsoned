@@ -4,7 +4,6 @@ import pathlib
 import sys
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QLabel, QFileDialog
-from PySide6.QtGui import QFontDatabase
 from MainWindow import Ui_MainWindow
 
 import syntax
@@ -24,8 +23,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.set_default_file_name()
         self.modified = False
         self.set_title()
-        font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
-        self.plainTextEdit.setFont(font)
         syntax.JsonHighlighter(self.plainTextEdit.document())
         self.plainTextEdit.textChanged.connect(self.editor_text_changed)
 
