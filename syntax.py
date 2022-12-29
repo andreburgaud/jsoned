@@ -1,5 +1,6 @@
 import re
 from PySide6 import QtCore, QtGui
+import lexer
 
 
 class JsonHighlighter (QtGui.QSyntaxHighlighter):
@@ -13,28 +14,43 @@ class JsonHighlighter (QtGui.QSyntaxHighlighter):
         self.setup_highlight()
 
     def setup_highlight(self):
-        # name_format = QtGui.QTextCharFormat()
-        # name_format.setForeground(QtCore.Qt.blue)
-        # #pattern = r'"[^"\\]*(?:\\.[^"\\]*)*"(?=\s*:)'
-        # pattern = r'"[^"\\]*(?:\\.[^"\\]*)*"\s*:'
-        # self.mappings[pattern] = name_format
+        key_format = QtGui.QTextCharFormat()
+        key_format.setForeground(QtCore.Qt.blue)
+        self.mappings[lexer.TokenID.KEY] = key_format
 
         string_format = QtGui.QTextCharFormat()
         string_format.setForeground(QtCore.Qt.GlobalColor.darkGreen)
-        # pattern = r'"[^"\\](\\.[^"\\])*"(?!\s*:)'
-        pattern = r'"[^"]*(\\.[^"\\]*)*"'
-        self.mappings[pattern] = string_format
+        self.mappings[lexer.TokenID.STRING] = string_format
 
-        # number_format = QtGui.QTextCharFormat()
-        # number_format.setForeground(QtCore.Qt.red)
-        # pattern = r'\b[+-]?[0-9]+(?:\.[0-9]+)?\b'
-        # self.mappings[pattern] = number_format
+        int_format = QtGui.QTextCharFormat()
+        int_format.setForeground(QtCore.Qt.GlobalColor.cyan)
+        self.mappings[lexer.TokenID.INT] = int_format
+
+        null_format = QtGui.QTextCharFormat()
+        null_format.setForeground(QtCore.Qt.GlobalColor.red)
+        self.mappings[lexer.TokenID.NULL] = null_format
+
+        bool_format = QtGui.QTextCharFormat()
+        bool_format.setForeground(QtCore.Qt.GlobalColor.magenta)
+        self.mappings[lexer.TokenID.BOOL] = bool_format
+
+        separator_format = QtGui.QTextCharFormat()
+        separator_format.setFontWeight(QtGui.QFont.Bold)
+        separator_format.setForeground(QtCore.Qt.GlobalColor.lightGray)
+        self.mappings[lexer.TokenID.COLON] = separator_format
+        self.mappings[lexer.TokenID.COMMA] = separator_format
+        self.mappings[lexer.TokenID.LEFT_SQ_BRACKET] = separator_format
+        self.mappings[lexer.TokenID.RIGHT_SQ_BRACKET] = separator_format
+        self.mappings[lexer.TokenID.LEFT_CURL_BRACKET] = separator_format
+        self.mappings[lexer.TokenID.RIGHT_CURL_BRACKET] = separator_format
 
     def highlightBlock(self, text):
         """Apply syntax highlighting to the given block of text.
         """
 
-        for pattern, fmt in self.mappings.items():
-            for match in re.finditer(pattern, text):
-                start, end = match.span()
-                self.setFormat(start, end - start, fmt)
+        for token_id, start, end in lexer.lexer(text):
+            fmt = self.mappings.get(token_id)
+            if fmt is None:
+                continue
+            self.setFormat(start, end - start, fmt)
+
