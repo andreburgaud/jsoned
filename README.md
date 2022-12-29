@@ -1,8 +1,6 @@
 # JSON Ed
 
-JSON Editor and Validator written in Python with PySide6. 
-
-I'm writing this tool mostly to play with PySide6.
+JSON Editor and Validator written in Python with PySide6. It runs on Linux, Mac OS, and Windows. I'm writing this tool mostly to play with PySide6.
 
 ![JSON Ed 2022-12-28 23-31-42](https://user-images.githubusercontent.com/6396088/209907836-90218951-163a-433f-8caa-c7e638395650.png)
 
